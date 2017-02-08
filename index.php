@@ -14,22 +14,28 @@
  * at first, look if all necessary libs are installed
  * 
  * **/
-if(!is_dir("lib/fpdi-1.6.1/")){
-	download("https://www.setasign.com/downloads/103845/FPDI-1.6.1.zip#p-356","lib/FPDI-1.6.1/","proxy-et.iosb.fraunhofer.de:80");
+if(!is_dir("lib/fpdi")){
+	download("https://www.setasign.com/downloads/103845/FPDI-1.6.1.zip#p-356","lib/fpdi/","proxy-et.iosb.fraunhofer.de:80");
 }
-if(!is_dir("lib/fpdf181")){
-	download("http://fpdf.de/downloads/fpdf181.zip","lib/fpdf181","proxy-et.iosb.fraunhofer.de:80");
+if(!is_dir("lib/fpdf")){
+	download("http://fpdf.de/downloads/fpdf181.zip","lib/fpdf","proxy-et.iosb.fraunhofer.de:80");
 }
-	
 
-require_once('fpdi/fpdf.php');
-require_once('fpdi/fpdi.php');
+require_once('lib/fpdf/fpdf.php');
+require_once('lib/fpdi/fpdi.php');
 
-$format = 'L';
+$format = ''; //horizontal 
 
 //the page to insert
+$thepage=2;
 
-foreach(glob('in/GP*.pdf') as $file)
+//$myfile = fopen('out/' . $filename, "w");
+
+/**
+ * @TODO load a pdf and add a blank page to page X
+ * **/
+
+foreach(glob('in/issues/GP*.pdf') as $file)
 {
 	$filename = basename($file);
 	$fileout = 'out/' . $filename;
@@ -43,26 +49,24 @@ foreach(glob('in/GP*.pdf') as $file)
 	// Alle Seiten nacheinander importieren
 	for($i = 1; $i <= $pagecount; $i++)
 	{
-		// Importiere Seite
-		$tpl = $out->importPage($i); // , '/MediaBox'
-
-		// Vorhandene Seite
-		$out->addPage($format);
-		$out->useTemplate($tpl);
-
-		if($i < $pagecount)
-		{
-			// Leere Seite anfügen (nur nicht am Ende)
+			// Importiere Seite
+			$tpl = $out->importPage($i); // , '/MediaBox'
+			// Vorhandene Seite
+			$out->addPage($format);
+			$out->useTemplate($tpl);
+			// Leere Seite anfügen (nur nicht am Ende)	
+		if($i==$thepage){
 			$out->addPage($format);
 		}
 	}
 
-	$out->Output($fileout);
+	$out->Output($fileout,"F");
 }
+echo "done";
 
-/**
- * @TODO load a pdf and add a blank page to page X
- * **/
+
+phpinfo();
+
 
 /**
  * @TODO generate thumbs of the first page and the flashpage
