@@ -21,8 +21,44 @@ if(!is_dir("lib/fpdf181")){
 	download("http://fpdf.de/downloads/fpdf181.zip","lib/fpdf181","proxy-et.iosb.fraunhofer.de:80");
 }
 	
-	
-echo "done";
+
+require_once('fpdi/fpdf.php');
+require_once('fpdi/fpdi.php');
+
+$format = 'L';
+
+//the page to insert
+
+foreach(glob('in/GP*.pdf') as $file)
+{
+	$filename = basename($file);
+	$fileout = 'out/' . $filename;
+
+	// Ausgabe-PDF
+	$out = new FPDI();
+
+	// Vorhandenes PDF einlesen
+	$pagecount = $out->setSourceFile($file);
+
+	// Alle Seiten nacheinander importieren
+	for($i = 1; $i <= $pagecount; $i++)
+	{
+		// Importiere Seite
+		$tpl = $out->importPage($i); // , '/MediaBox'
+
+		// Vorhandene Seite
+		$out->addPage($format);
+		$out->useTemplate($tpl);
+
+		if($i < $pagecount)
+		{
+			// Leere Seite anfügen (nur nicht am Ende)
+			$out->addPage($format);
+		}
+	}
+
+	$out->Output($fileout);
+}
 
 /**
  * @TODO load a pdf and add a blank page to page X
